@@ -234,7 +234,7 @@ function saveArrayBuffer(buffer, filename) {
               <li>Vue - Framework this app was based on.</li>
             </ul>
 
-            <p>This project was also open sourced, btw</p>
+            <p>This project was also <a href="https://github.com/SK-Fast/pt-avatar-sandbox" target="_blank">open sourced</a>, btw</p>
 
             <div class="row">
               <div class="col-8">
