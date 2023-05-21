@@ -1,0 +1,43 @@
+@import url('./assets/bootstrappt.css');
+@import url('https://kit-pro.fontawesome.com/releases/v6.2.1/css/pro.min.css');
+
+.av-preview canvas {
+  border-radius: 10px;
+}
+
+#app {
+  width: 100vw;
+}
+
+.emote {
+  width: calc(50% - 20px);
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50px;
+  padding: 1em;
+  display: flex;
+  flex-direction: row;
+  
+  cursor: pointer;
+}
+
+.emote .fa-regular {
+  font-size: 20px;
+}
+
+.emote p {
+  margin: 0;
+  margin-left: 10px;
+  font-size: 15px;
+}
+
+.emote:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.emote.active {
+  background-color: #3BAFFF;
+}
+
+.emote.active:hover {
+  background-color: hsl(204, 100%, 45%);
+}
