@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import { onMounted, ref } from 'vue';
+import * as ATExporter from './utils/advtemplate.js'
 
 const avatarPreview = ref(null)
 let scene;
@@ -10,7 +11,7 @@ let animMixer;
 
 const animClips = ref([])
 
-function loadTexture(path) {
+function loadBodyTexture(path) {
   return new Promise((resolve) => {
     const canvas = document.createElement('canvas')
 
@@ -42,14 +43,14 @@ function loadTexture(path) {
 }
 
 async function equipShirt(path) {
-  scene.getObjectByName("Torso").material.map = (await loadTexture(path))
+  scene.getObjectByName("Torso").material.map = (await loadBodyTexture(path))
   scene.getObjectByName("Torso").material.alphaTest = 0.5
   scene.getObjectByName("Torso").material.needsUpdate = true
 }
 
 async function equipPant(path) {
-  scene.getObjectByName("Left_Leg").material.map = (await loadTexture(path))
-  scene.getObjectByName("Right_Leg").material.map = (await loadTexture(path))
+  scene.getObjectByName("Left_Leg").material.map = (await loadBodyTexture(path))
+  scene.getObjectByName("Right_Leg").material.map = (await loadBodyTexture(path))
   scene.getObjectByName("Left_Leg").material.alphaTest = 0.5
   scene.getObjectByName("Left_Leg").material.needsUpdate = true
   scene.getObjectByName("Right_Leg").material.alphaTest = 0.5
@@ -131,6 +132,23 @@ const pantsUpload = async (event) => {
   }
 }
 
+const aClothData = ref([])
+
+const advancedTemplateUpload = async (event) => {
+  const fileList = event.target.files;
+
+  if (fileList[0]) {
+    const imgURL = await readImage(fileList[0])
+
+    const adata = await ATExporter.convert(imgURL)
+
+    equipShirt(adata[0])
+    equipPant(adata[1])
+
+    aClothData.value = adata
+  }
+}
+
 const actionObj = ref({})
 
 const toggleAnim = (animN) => {
@@ -149,25 +167,12 @@ const toggleAnim = (animN) => {
   console.log(actionObj.value)
 }
 
-const exportGLTF = async () => {
-  const exporter = new GLTFExporter();
-  exporter.parse(
-    scene,
-    function (result) {
-      saveArrayBuffer(result, 'export.glb');
-    },
-    { binary: true }
-  );
-}
-
-function saveArrayBuffer(buffer, filename) {
+function downloadImg(base64, filename) {
   const a = document.createElement("a");
-  const file = new Blob([buffer], { type: 'application/octet-stream' });
-  a.href = URL.createObjectURL(file);
+  a.href = base64;
   a.download = filename;
 
   a.click()
-
 }
 </script>
 
@@ -215,6 +220,11 @@ function saveArrayBuffer(buffer, filename) {
                   class="fas fa-download me-1"></i> Expert Template</a>
             </div>
 
+            <hr />
+
+            <p class="m-0 mt-1 mb-1">Experienced? You can also try the advanced template.</p>
+            <a href="/advanced.png" target="_blank" class="btn btn-sm btn-outline-danger w-100"><i
+                class="fas fa-download me-1"></i> Advanced Template</a>
           </div>
         </div>
 
@@ -234,13 +244,16 @@ function saveArrayBuffer(buffer, filename) {
               <li>Vue - Framework this app was based on.</li>
             </ul>
 
-            <p>This project was also <a href="https://github.com/SK-Fast/pt-avatar-sandbox" target="_blank">open sourced</a>, btw</p>
+            <p>This project was also <a href="https://github.com/SK-Fast/pt-avatar-sandbox" target="_blank">open
+                sourced</a>, btw</p>
 
             <div class="row">
               <div class="col-8">
                 <h5>by devpixels</h5>
                 <p>aka <a href="https://polytoria.com/users/16342" target="_blank">hu tao</a> from polytoria</p>
-                <p><a href="https://devpixels.xyz/" target="_blank">portfolio</a> • <a href="https://discord.gg/EzcWp2KxTr" target="_blank">discord</a> • <a href="https://blog.devpixels.xyz/" target="_blank">blog</a></p>
+                <p><a href="https://devpixels.xyz/" target="_blank">portfolio</a> • <a
+                    href="https://discord.gg/EzcWp2KxTr" target="_blank">discord</a> • <a
+                    href="https://blog.devpixels.xyz/" target="_blank">blog</a></p>
               </div>
               <div class="col-4">
                 <img src="/hutaofromgenshin.png" class="img-fluid">
@@ -275,6 +288,27 @@ function saveArrayBuffer(buffer, filename) {
           <div class="card-body">
             <div class="px-1"><input type="file" @change="pantsUpload" class="form-control bg-dark" id="files"
                 name="files" placeholder="Files" accept=".jpg, .jpeg, .png"></div>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header">
+            <h6 class="m-0">
+              <i class="fad fa-socks"></i> <span class="ms-1">Advanced Template</span>
+            </h6>
+          </div>
+          <div class="card-body">
+            <p>You can preview the advanced template there. The advanced template will be converted into normal templates.
+            </p>
+            <div class="px-1"><input type="file" @change="advancedTemplateUpload" class="form-control bg-dark" id="files"
+                name="files" placeholder="Files" accept=".jpg, .jpeg, .png"></div>
+
+            <div class="d-flex mt-2">
+              <a @click="downloadImg(aClothData[0],'shirt.png')" target="_blank" class="btn btn-sm btn-outline-info me-2"><i
+                  class="fas fa-download me-1"></i> Export Shirt</a>
+              <a @click="downloadImg(aClothData[1],'pants.png')" target="_blank" class="btn btn-sm btn-outline-info"><i
+                  class="fas fa-download me-1"></i> Export Pants</a>
+            </div>
           </div>
         </div>
 
